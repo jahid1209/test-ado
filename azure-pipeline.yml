@@ -1,1 +1,30 @@
+trigger:
+- master
 
+pool:
+  vmImage: ubuntu-latest
+  #name: Default
+  
+variables:
+  - group: Blackduck
+
+
+steps:
+
+- task: SynopsysSecurityScan@1.4.0
+  displayName: 'Black Duck'
+  condition: not(eq(variables['Build.Reason'], 'PullRequest'))
+  ### Use below configuration to set specific detect environment variables
+  env:
+    DETECT_PROJECT_NAME: $(Build.Repository.Name)
+  inputs:
+    BRIDGE_BLACKDUCK_URL: $(BLACKDUCK_URL)
+    BRIDGE_BLACKDUCK_TOKEN: $(BLACKDUCK_TOKEN)
+    BRIDGE_BLACKDUCK_SCAN_FULL: false
+    AZURE_TOKEN: $(System.AccessToken) # Mandatory when BRIDGE_BLACKDUCK_AUTOMATION_FIXPR is set to 'true'
+    ### Uncomment below configuration if Synopsys Bridge diagnostic files needs to be uploaded
+    INCLUDE_DIAGNOSTICS: true
+    BRIDGE_BLACKDUCK_REPORTS_SARIF_CREATE: true
+    #BRIDGE_BLACKDUCK_REPORTS_SARIF_FILE_PATH: "/home/vsts/.synopsys/bridge/Sarif/report_BB.json"
+    BRIDGE_BLACKDUCK_REPORTS_SARIF_SEVERITIES: "SAST, SCA"
+    BRIDGE_BLACKDUCK_REPORTS_SARIF_GROUPSCAISSUES: true  
